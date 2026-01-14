@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Intelligence | The Future of Enterprise OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #6366f1;
+            --accent-soft: #eef2ff;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --auth-state: 1;
+            --portal-state: 0;
+            --transition-main: 1.2s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        /* --- Global Reset & Base --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--white);
+            color: var(--dark);
+            overflow: hidden;
+            width: 100vw;
+            line-height: 1.6;
+        }
+
+        /* --- UI Components (Animated) --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Login Portal Overlay --- */
+        #login-portal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: var(--auth-state);
+            transition: var(--transition-main);
+        }
+
+        .login-card {
+            width: 450px;
+            padding: 50px;
+            border-radius: 32px;
+            text-align: center;
+            background: var(--white);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.08);
+            border: 1px solid #f1f5f9;
+            animation: cardEntrance 1s ease-out;
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+            animation: fadeIn 1s 0.2s both;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: var(--dark);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            background: var(--accent);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* --- Main Dashboard Container --- */
+        #main-content {
+            opacity: var(--portal-state);
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--light);
+            transition: var(--transition-main);
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            z-index: 1000;
+            animation: navSlide 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        @keyframes navSlide { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; color: var(--dark); }
+        .nav-links { display: flex; gap: 40px; align-items: center; }
+        .nav-links a { text-decoration: none; color: #64748b; font-weight: 600; font-size: 0.95rem; transition: 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
+
+        /* --- Hero Section --- */
+        .hero {
+            padding: 140px 8% 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at top right, #e0e7ff 0%, #ffffff 40%);
+        }
+        .hero-tag {
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-bottom: 24px;
+            display: inline-block;
+            animation: fadeIn 1s 0.5s both;
+        }
+        .hero h1 {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -3px;
+            color: var(--dark);
+            max-width: 1000px;
+            animation: titleReveal 1.2s cubic-bezier(0.19, 1, 0.22, 1) both;
+        }
+        @keyframes titleReveal { from { opacity: 0; transform: translateY(60px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+
+        /* --- Bento Grid Section --- */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(2, 350px);
+            gap: 24px;
+            padding: 80px 8%;
+        }
+        .bento-item {
+            background: var(--white);
+            border-radius: 32px;
+            padding: 40px;
+            border: 1px solid #f1f5f9;
+            transition: 0.5s;
+            position: relative;
+            overflow: hidden;
+        }
+        .bento-item:hover { transform: scale(1.02); box-shadow: 0 30px 60px rgba(0,0,0,0.05); }
+
+        .large { grid-column: span 8; }
+        .small { grid-column: span 4; }
+        .medium { grid-column: span 6; }
+
+        .bento-item h3 { font-size: 1.8rem; margin-bottom: 16px; letter-spacing: -0.5px; }
+        .bento-item p { color: #64748b; font-size: 1.1rem; }
+
+        /* --- Stats/Numbers Section --- */
+        .metrics {
+            padding: 120px 8%;
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 60px;
+            margin: 0 2%;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .metric-card h2 { font-size: 5rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+        .metric-card p { opacity: 0.6; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- Interactive Visualizer --- */
+        .viz-section { padding: 100px 8%; text-align: center; }
+        .bar-container {
+            height: 400px;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            margin-top: 60px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 40px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .data-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--accent), #a5b4fc);
+            border-radius: 8px 8px 4px 4px;
+            height: 0;
+            transition: 2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        /* --- Multi-Section Content (Building length) --- */
+        .content-block { padding: 100px 8%; display: flex; gap: 80px; align-items: center; }
+        .content-block:nth-child(even) { flex-direction: row-reverse; }
+        .image-placeholder {
+            flex: 1;
+            height: 500px;
+            background: #e2e8f0;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+        .text-side { flex: 1; }
+        .text-side h2 { font-size: 3rem; margin-bottom: 24px; letter-spacing: -1px; }
+
+        /* --- Footer --- */
+        footer {
+            background: #fff;
+            padding: 100px 8% 40px;
+            border-top: 1px solid #f1f5f9;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+        .footer-col h4 { margin-bottom: 24px; font-weight: 700; }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 12px; }
+        .footer-col a { color: #64748b; text-decoration: none; transition: 0.3s; }
+        .footer-col a:hover { color: var(--accent); }
+
+        /* --- Utility Animations --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Scroll Progress Bar */
+        #progress {
+            position: fixed; top: 0; left: 0; height: 4px;
+            background: var(--accent); z-index: 1001; width: 0%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="progress"></div>
+
+    <div id="login-portal">
+        <div class="login-card">
+            <div style="margin-bottom: 40px;">
+                <div style="width: 60px; height: 60px; background: var(--accent); border-radius: 16px; margin: 0 auto 20px;"></div>
+                <h2 style="font-size: 1.8rem; font-weight: 800;">Welcome to Nexus</h2>
+                <p style="color: #64748b;">Sign in to manage your intelligence assets.</p>
+            </div>
+            
+            <div class="input-group">
+                <label style="font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 8px; display: block;">EMAIL ADDRESS</label>
+                <input type="email" placeholder="name@company.com">
+            </div>
+
+            <div class="input-group">
+                <label style="font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 8px; display: block;">PASSWORD</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+
+            <button class="btn-primary" onclick="launchExperience()">Enter Workspace</button>
+            
+            <p style="margin-top: 30px; font-size: 0.9rem; color: #94a3b8;">
+                Don't have an account? <a href="#" style="color: var(--accent); text-decoration: none; font-weight: 600;">Request Access</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <nav>
+            <div class="logo">NEXUS.</div>
+            <div class="nav-links">
+                <a href="#solutions">Solutions</a>
+                <a href="#platform">Platform</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#docs">Documentation</a>
+                <button class="btn-primary" style="width: auto; padding: 12px 24px; font-size: 0.8rem;">Get Started</button>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <span class="hero-tag">RELEASE 4.0 IS LIVE</span>
+            <h1>Intelligence that moves <br> at the speed of your business.</h1>
+            <p class="reveal" style="font-size: 1.4rem; color: #64748b; max-width: 800px; margin-top: 32px;">
+                Our unified operating system abstracts the complexity of cloud infrastructure, allowing your team to focus on building the next generation of AI-native applications.
+            </p>
+            <div class="reveal" style="display: flex; gap: 20px; margin-top: 48px;">
+                <button class="btn-primary" style="width: 200px;">Start Deploying</button>
+                <button class="btn-primary" style="width: 200px; background: #fff; color: var(--dark); border: 1px solid #e2e8f0;">Book Demo</button>
+            </div>
+        </section>
+
+        <section class="bento-grid" id="solutions">
+            <div class="bento-item large reveal">
+                <h3>Unified Command</h3>
+                <p>Manage globally distributed clusters from a single, intuitive dashboard. Real-time observability baked into the core.</p>
+                <div style="margin-top: 40px; height: 100px; background: var(--accent-soft); border-radius: 20px;"></div>
+            </div>
+            <div class="bento-item small reveal">
+                <h3>Edge Logic</h3>
+                <p>Push compute to the edge with < 10ms latency.</p>
+            </div>
+            <div class="bento-item small reveal">
+                <h3>Auto-Scale</h3>
+                <p>Intelligent resource allocation based on predicted demand.</p>
+            </div>
+            <div class="bento-item large reveal">
+                <h3>Security by Design</h3>
+                <p>Zero-trust architecture with end-to-end encryption for every packet moving through our mesh network.</p>
+            </div>
+        </section>
+
+        <section class="metrics">
+            <div class="metric-card reveal">
+                <h2 class="count" data-target="99">0</h2>
+                <p>Uptime SLA</p>
+            </div>
+            <div class="metric-card reveal">
+                <h2 class="count" data-target="450">0</h2>
+                <p>Global Nodes</p>
+            </div>
+            <div class="metric-card reveal">
+                <h2 class="count" data-target="12">0</h2>
+                <p>Avg Latency</p>
+            </div>
+        </section>
+
+        <section class="content-block reveal" id="platform">
+            <div class="image-placeholder reveal">
+                <div style="position: absolute; top: 50%; left: 50%; width: 300px; height: 300px; background: var(--accent); border-radius: 50%; filter: blur(80px); opacity: 0.3; transform: translate(-50%, -50%);"></div>
+            </div>
+            <div class="text-side reveal">
+                <h2>Designed for the modern developer.</h2>
+                <p>Nexus provides a seamless CLI and API experience. Whether you're deploying a simple microservice or a complex neural network, our platform handles the heavy lifting.</p>
+                <ul style="margin-top: 30px; list-style: none;">
+                    <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+                        <span style="width: 24px; height: 24px; background: var(--accent); border-radius: 50%;"></span>
+                        Multi-cloud redundancy by default
+                    </li>
+                    <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+                        <span style="width: 24px; height: 24px; background: var(--accent); border-radius: 50%;"></span>
+                        Automated CI/CD pipelines
+                    </li>
+                    <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+                        <span style="width: 24px; height: 24px; background: var(--accent); border-radius: 50%;"></span>
+                        Real-time cost optimization
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="viz-section reveal">
+            <h2>Real-time Network Throughput</h2>
+            <p>Our global mesh network processed over 4.2 Petabytes of data in the last 24 hours.</p>
+            <div class="bar-container reveal" id="viz-box">
+                </div>
+        </section>
+
+        <section class="content-block reveal">
+            <div class="text-side reveal">
+                <h2>Scale without limits.</h2>
+                <p>Horizontal scaling is no longer a manual task. Nexus Intelligence observes your traffic patterns and scales infrastructure before the bottleneck happens.</p>
+            </div>
+            <div class="image-placeholder reveal" style="background: #0f172a;">
+                <div style="color: white; padding: 40px; font-family: monospace; font-size: 0.8rem;">
+                    $ nexus deploy --service worker-ai --region global<br>
+                    > Analyzing infrastructure...<br>
+                    > provisioning 40 nodes in eu-west...<br>
+                    > provisioning 20 nodes in us-east...<br>
+                    > Deployment successful. 0ms downtime.
+                </div>
+            </div>
+        </section>
+
+        <section class="bento-grid">
+            <div class="bento-item medium reveal"><h3>Global CDN</h3><p>Static assets served from 200+ edge locations.</p></div>
+            <div class="bento-item medium reveal"><h3>Shared Logic</h3><p>Collaborate with your team in real-time on infrastructure code.</p></div>
+            <div class="bento-item medium reveal"><h3>Smart Logs</h3><p>AI-powered log analysis that surfaces errors before they impact users.</p></div>
+            <div class="bento-item medium reveal"><h3>Custom Runtimes</h3><p>Support for Rust, Go, Python, and Node.js at the hardware level.</p></div>
+        </section>
+
+        <section style="padding: 150px 8%; text-align: center;" class="reveal">
+            <h2 style="font-size: 4rem; margin-bottom: 40px;">Ready to build the future?</h2>
+            <button class="btn-primary" style="width: 300px; font-size: 1.2rem; padding: 25px;">Join the Private Beta</button>
+        </section>
+
+        <footer>
+            <div class="footer-col">
+                <div class="logo">NEXUS.</div>
+                <p style="margin-top: 20px; color: #64748b;">The next generation of enterprise cloud infrastructure.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="#">Compute</a></li>
+                    <li><a href="#">Storage</a></li>
+                    <li><a href="#">Edge Network</a></li>
+                    <li><a href="#">Security</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">SLA</a></li>
+                </ul>
+            </div>
+            <div style="grid-column: span 4; border-top: 1px solid #f1f5f9; padding-top: 40px; color: #94a3b8; font-size: 0.8rem;">
+                &copy; 2026 Nexus Intelligence Systems Inc. Built for the modern web.
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 1. Initial Visualizer Setup
+        const vizBox = document.getElementById('viz-box');
+        for (let i = 0; i < 40; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'data-bar';
+            bar.style.height = '0%';
+            bar.dataset.height = (Math.random() * 80 + 20) + '%';
+            vizBox.appendChild(bar);
+        }
+
+        // 2. Launch Function
+        function launchExperience() {
+            document.documentElement.style.setProperty('--auth-state', '0');
+            document.documentElement.style.setProperty('--portal-state', '1');
+            
+            setTimeout(() => {
+                document.getElementById('login-portal').style.display = 'none';
+                document.body.style.overflowY = 'auto';
+                initScrollEngine();
+            }, 1200);
+        }
+
+        // 3. Sequential Animation Engine
+        function initScrollEngine() {
+            const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        // Staggering effect for elements in the same view
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                            
+                            // Specific triggers for sub-elements
+                            if (entry.target.classList.contains('count')) {
+                                animateValue(entry.target);
+                            }
+                            if (entry.target.id === 'viz-box') {
+                                animateBars();
+                            }
+                        }, index * 100); 
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal, .count, .bento-item, .metric-card, #viz-box').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // 4. Number Counter Animation
+        function animateValue(obj) {
+            const target = +obj.getAttribute('data-target');
+            let start = 0;
+            const duration = 2000;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(progress * target);
+                
+                obj.innerText = current + (target === 99 ? '%' : (target === 0.2 ? 'ms' : ''));
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        // 5. Data Bar Animation
+        function animateBars() {
+            const bars = document.querySelectorAll('.data-bar');
+            bars.forEach((bar, i) => {
+                setTimeout(() => {
+                    bar.style.height = bar.dataset.height;
+                    // Continuous jitter effect
+                    setInterval(() => {
+                        const jitter = (Math.random() * 10 - 5);
+                        const base = parseFloat(bar.dataset.height);
+                        bar.style.height = (base + jitter) + '%';
+                    }, 1000 + (Math.random() * 1000));
+                }, i * 30);
+            });
+        }
+
+        // 6. Scroll Progress Logic
+        const main = document.getElementById('main-content');
+        main.onscroll = () => {
+            const winScroll = main.scrollTop;
+            const height = main.scrollHeight - main.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("progress").style.width = scrolled + "%";
+        };
+    </script>
+</body>
+</html>
